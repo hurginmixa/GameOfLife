@@ -1,0 +1,7 @@
+CalcLiveCells
+
+3 4
+.X.
+X.X
+X.X
+.X.

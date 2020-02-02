@@ -1,0 +1,4 @@
+.vs/
+TestData/*_active.txt
+bin/GameOfLifeAppl.*
+bin/GameOfLifeTests.*

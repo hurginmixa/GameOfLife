@@ -1,0 +1,7 @@
+CalcSurvivingCells
+
+4 4
+XX..
+XX..
+..XX
+..XX
