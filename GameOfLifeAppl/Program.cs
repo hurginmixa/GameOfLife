@@ -27,18 +27,7 @@ namespace GameOfLifeAppl
             }
             else if (playData.Command == "CalcLiveCells")
             {
-                int count = 0;
-
-                for (int col = 0; col < playData.Cols; col++)
-                {
-                    for (int row = 0; row < playData.Rows; row++)
-                    {
-                        if (playData.IsLifeCoords(col, row))
-                        {
-                            count += 1;
-                        }
-                    }
-                }
+                int count = playData.GetCellIndexes(c => playData.IsLifeCoords(c)).Count();
 
                 File.WriteAllText(outFile, count.ToString());
             }
@@ -48,41 +37,13 @@ namespace GameOfLifeAppl
             }
             else if (playData.Command == "CalcSurvivingCells")
             {
-                int count = 0;
+                int count = playData.GetCellIndexes(c => playData.IsLifeCoords(c)).Select(c => playData.GetLifeNeighborsCount(c)).Count(n => n == 2 || n == 3);
 
-                for (int col = 0; col < playData.Cols; col++)
-                {
-                    for (int row = 0; row < playData.Rows; row++)
-                    {
-                        if (!playData.IsLifeCoords(col, row))
-                        {
-                            continue;
-                        }
-
-                        int neighborsCount = 0;
-
-                        for (int deltaCol = -1; deltaCol <= 1; deltaCol++)
-                        {
-                            for (int deltaRow = -1; deltaRow <= 1; deltaRow++)
-                            {
-                                if (deltaCol == 0 && deltaRow == 0)
-                                {
-                                    continue;
-                                }
-
-                                if (playData.IsLifeCoords(col + deltaCol, row + deltaRow))
-                                {
-                                    neighborsCount++;
-                                }
-                            }
-                        }
-
-                        if (neighborsCount == 2 || neighborsCount == 3)
-                        {
-                            count += 1;
-                        }
-                    }
-                }
+                File.WriteAllText(outFile, count.ToString());
+            }
+            else if (playData.Command == "CalcNewCells")
+            {
+                int count = playData.GetCellIndexes(c => !playData.IsLifeCoords(c)).Select(c => playData.GetLifeNeighborsCount(c)).Count(n => n == 3);
 
                 File.WriteAllText(outFile, count.ToString());
             }

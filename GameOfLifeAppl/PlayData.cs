@@ -1,8 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace GameOfLifeAppl
 {
-    class PlayData
+    internal class CellIndex
+    {
+        public CellIndex(int col, int row)
+        {
+            Col = col;
+            Row = row;
+        }
+
+        public int Col { get; }
+
+        public int Row { get; }
+    }
+
+    internal class PlayData
     {
         private readonly int _cols;
         private readonly int _rows;
@@ -82,11 +96,48 @@ namespace GameOfLifeAppl
 
         public int Rows => _rows;
 
-        public bool IsValidCoords(int col, int row) => col >= 0 && col < _cols && row >= 0 && row < _rows;
-
-        public bool IsLifeCoords(int col, int row)
+        public IEnumerable<CellIndex> GetCellIndexes() => GetCellIndexes(c => true);
+        
+        public IEnumerable<CellIndex> GetCellIndexes(Func<CellIndex, bool> filter)
         {
-            return IsValidCoords(col, row) && Area[col, row] == 'X';
+            for (int col = 0; col < _cols; col++)
+            {
+                for (int row = 0; row < _rows; row++)
+                {
+                    var cellIndex = new CellIndex(col, row);
+                    if (filter(cellIndex))
+                    {
+                        yield return cellIndex;
+                    }
+                }
+            }
+        }
+
+        public bool IsValidCoords(CellIndex cellIndex) => cellIndex.Col >= 0 && cellIndex.Col < _cols && cellIndex.Row >= 0 && cellIndex.Row < _rows;
+
+        public bool IsLifeCoords(CellIndex cellIndex) => IsValidCoords(cellIndex) && Area[cellIndex.Col, cellIndex.Row] == 'X';
+
+        public int GetLifeNeighborsCount(CellIndex cellIndex)
+        {
+            int neighborsCount = 0;
+
+            for (int deltaCol = -1; deltaCol <= 1; deltaCol++)
+            {
+                for (int deltaRow = -1; deltaRow <= 1; deltaRow++)
+                {
+                    if (deltaCol == 0 && deltaRow == 0)
+                    {
+                        continue;
+                    }
+
+                    if (IsLifeCoords(new CellIndex(cellIndex.Col + deltaCol, cellIndex.Row + deltaRow)))
+                    {
+                        neighborsCount++;
+                    }
+                }
+            }
+
+            return neighborsCount;
         }
     }
 }

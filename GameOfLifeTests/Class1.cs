@@ -34,7 +34,7 @@ namespace GameOfLifeTests
         }
 
         [Test]
-        public void TestCases([Values(13, 92, 93)] int testNum)
+        public void TestCases([Values(13, 92, 93, 14, 15)] int testNum)
         {
             var testDataPath = TestDataPath();
 

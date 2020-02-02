@@ -2,3 +2,5 @@
 TestData/*_active.txt
 bin/GameOfLifeAppl.*
 bin/GameOfLifeTests.*
+/GameOfLifeTests/obj
+/GameOfLifeAppl/obj
