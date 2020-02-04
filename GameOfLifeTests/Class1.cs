@@ -18,27 +18,21 @@ namespace GameOfLifeTests
 
             var files = Directory.GetFiles(testDataPath, "test_*_input.txt");
 
-            foreach (var file in files)
+            Assert.Multiple(() =>
             {
-                var testNum = int.Parse(file.Split('_')[1]);
+                foreach (var file in files)
+                {
+                    var testNum = int.Parse(file.Split('_')[1]);
 
-                TestCase(testDataPath, testNum);
-            }
+                    TestCase(testDataPath, testNum);
+                }
+            });
         }
 
         private static string TestDataPath()
         {
             Uri uri = new Uri(Assembly.GetExecutingAssembly().CodeBase, UriKind.Absolute);
-            var testDataPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(uri.LocalPath), "..", "TestData"));
-            return testDataPath;
-        }
-
-        [Test]
-        public void TestCases([Values(13, 92, 93, 14, 15)] int testNum)
-        {
-            var testDataPath = TestDataPath();
-
-            TestCase(testDataPath, testNum);
+            return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(uri.LocalPath), "..", "TestData"));
         }
 
         private static void TestCase(string testDataPath, int testNum)

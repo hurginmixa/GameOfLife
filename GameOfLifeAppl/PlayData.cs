@@ -1,12 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace GameOfLifeAppl
 {
     internal class PlayData
     {
+        public class CellIndex1 : ICellIndex
+        {
+            private readonly PlayData _playData;
+
+            public CellIndex1(int col, int row, PlayData playData)
+            {
+                _playData = playData;
+                Col = col;
+                Row = row;
+            }
+
+            public int Col { get; }
+
+            public int Row { get; }
+
+            public ref char Char => ref _playData._area[Col, Row];
+        }
+
         private readonly int _cols;
         private readonly int _rows;
+        private readonly char[,] _area;
 
         public PlayData(string[] data)
         {
@@ -70,12 +90,10 @@ namespace GameOfLifeAppl
 
             i += 1;
 
-            Area = GetArea(ref i, _cols, _rows);
+            _area = GetArea(ref i, _cols, _rows);
         }
 
         public IReadOnlyDictionary<string, string> Params;
-
-        public char[,] Area { get; }
 
         public string Command { get; }
 
@@ -83,15 +101,15 @@ namespace GameOfLifeAppl
 
         public int Rows => _rows;
 
-        public IEnumerable<CellIndex> GetCellIndexes() => GetCellIndexes(c => true);
+        public IEnumerable<ICellIndex> GetCellIndexes() => GetCellIndexes(c => true);
         
-        public IEnumerable<CellIndex> GetCellIndexes(Func<CellIndex, bool> filter)
+        public IEnumerable<ICellIndex> GetCellIndexes(Func<ICellIndex, bool> filter)
         {
             for (int col = 0; col < _cols; col++)
             {
                 for (int row = 0; row < _rows; row++)
                 {
-                    var cellIndex = new CellIndex(col, row);
+                    var cellIndex = new CellIndex1(col, row, this);
                     if (filter(cellIndex))
                     {
                         yield return cellIndex;
@@ -100,11 +118,11 @@ namespace GameOfLifeAppl
             }
         }
 
-        public bool IsValidCoords(CellIndex cellIndex) => cellIndex.Col >= 0 && cellIndex.Col < _cols && cellIndex.Row >= 0 && cellIndex.Row < _rows;
+        public bool IsValidCoords(ICellIndex cellIndex) => cellIndex.Col >= 0 && cellIndex.Col < _cols && cellIndex.Row >= 0 && cellIndex.Row < _rows;
 
-        public bool IsLifeCoords(CellIndex cellIndex) => IsValidCoords(cellIndex) && Area[cellIndex.Col, cellIndex.Row] == 'X';
+        public bool IsLifeCoords(ICellIndex cellIndex) => IsValidCoords(cellIndex) && (_area[cellIndex.Col, cellIndex.Row] == 'X' || _area[cellIndex.Col, cellIndex.Row] == 'x');
 
-        public int GetLifeNeighborsCount(CellIndex cellIndex)
+        public int GetLifeNeighborsCount(ICellIndex cellIndex)
         {
             int neighborsCount = 0;
 
@@ -117,7 +135,7 @@ namespace GameOfLifeAppl
                         continue;
                     }
 
-                    if (IsLifeCoords(new CellIndex(cellIndex.Col + deltaCol, cellIndex.Row + deltaRow)))
+                    if (IsLifeCoords(new CellIndex1(cellIndex.Col + deltaCol, cellIndex.Row + deltaRow, this)))
                     {
                         neighborsCount++;
                     }
@@ -125,6 +143,57 @@ namespace GameOfLifeAppl
             }
 
             return neighborsCount;
+        }
+
+        public bool IsSurvivingCell(ICellIndex cellIndex)
+        {
+            if (!IsLifeCoords(cellIndex))
+            {
+                return false;
+            }
+
+            var neighborsCount = GetLifeNeighborsCount(cellIndex);
+            return neighborsCount == 2 || neighborsCount == 3;
+        }
+
+        public bool IsDyingCell(ICellIndex cellIndex)
+        {
+            if (!IsLifeCoords(cellIndex))
+            {
+                return false;
+            }
+
+            var neighborsCount = GetLifeNeighborsCount(cellIndex);
+            return neighborsCount != 2 && neighborsCount != 3;
+        }
+
+        public bool IsNewCell(ICellIndex cellIndex)
+        {
+            if (IsLifeCoords(cellIndex))
+            {
+                return false;
+            }
+
+            var neighborsCount = GetLifeNeighborsCount(cellIndex);
+            return neighborsCount == 3;
+        }
+
+        public void WriteArea(string outFile)
+        {
+            using (TextWriter tw = new StreamWriter(outFile))
+            {
+                tw.WriteLine($"{_cols} {_rows}");
+                
+                for (int row = 0; row < _rows; row++)
+                {
+                    for (int col = 0; col < _cols; col++)
+                    {
+                        tw.Write(_area[col, row]);
+                    }
+
+                    tw.WriteLine();
+                }
+            }
         }
     }
 }

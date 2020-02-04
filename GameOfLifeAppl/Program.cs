@@ -35,18 +35,49 @@ namespace GameOfLifeAppl
                     break;
                 }
                 case "CalcParamsCount":
+                {
                     File.WriteAllText(outFile, playData.Params.Count.ToString());
                     break;
+                }
                 case "CalcSurvivingCells":
                 {
-                    int count = playData.GetCellIndexes(c => playData.IsLifeCoords(c)).Select(c => playData.GetLifeNeighborsCount(c)).Count(n => n == 2 || n == 3);
+                    int count = playData.GetCellIndexes().Count(c => playData.IsSurvivingCell(c));
                     File.WriteAllText(outFile, count.ToString());
                     break;
                 }
                 case "CalcNewCells":
                 {
-                    int count = playData.GetCellIndexes(c => !playData.IsLifeCoords(c)).Select(c => playData.GetLifeNeighborsCount(c)).Count(n => n == 3);
+                    int count = playData.GetCellIndexes().Count(c => playData.IsNewCell(c));
                     File.WriteAllText(outFile, count.ToString());
+                    break;
+                }
+                case "NextGeneration":
+                {
+                    foreach (var cellIndex in playData.GetCellIndexes())
+                    {
+                        if (playData.IsDyingCell(cellIndex))
+                        {
+                            cellIndex.Char = 'x';
+                        }
+                        else if (playData.IsNewCell(cellIndex))
+                        {
+                            cellIndex.Char = 'n';
+                        }
+                    }
+
+                    foreach (var cellIndex in playData.GetCellIndexes())
+                    {
+                        if (cellIndex.Char == 'x')
+                        {
+                            cellIndex.Char = '.';
+                        } 
+                        else if (cellIndex.Char == 'n')
+                        {
+                            cellIndex.Char = 'X';
+                        }
+                    }
+
+                    playData.WriteArea(outFile);
                     break;
                 }
             }

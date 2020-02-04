@@ -1,15 +1,11 @@
 ﻿namespace GameOfLifeAppl
 {
-    internal class CellIndex
+    internal interface ICellIndex
     {
-        public CellIndex(int col, int row)
-        {
-            Col = col;
-            Row = row;
-        }
+        int Col { get; }
 
-        public int Col { get; }
+        int Row { get; }
 
-        public int Row { get; }
+        ref char Char { get; }
     }
 }
