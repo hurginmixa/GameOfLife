@@ -1,0 +1,9 @@
+NextGeneration
+Rules:HighLife
+
+7 5
+.......
+..XXX..
+.......
+..XXX..
+.......

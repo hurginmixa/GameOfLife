@@ -47,38 +47,20 @@ namespace GameOfLifeAppl
                 }
                 case "CalcNewCells":
                 {
-                    int count = playData.GetCellIndexes().Count(c => playData.IsNewCell(c));
+                    int count = playData.GetCellIndexes().Count(c => playData.IsNewCell(c, new PlayData.RegularNewCellStrategy()));
                     File.WriteAllText(outFile, count.ToString());
                     break;
                 }
                 case "NextGeneration":
                 {
-                    foreach (var cellIndex in playData.GetCellIndexes())
-                    {
-                        if (playData.IsDyingCell(cellIndex))
-                        {
-                            cellIndex.Char = 'x';
-                        }
-                        else if (playData.IsNewCell(cellIndex))
-                        {
-                            cellIndex.Char = 'n';
-                        }
-                    }
-
-                    foreach (var cellIndex in playData.GetCellIndexes())
-                    {
-                        if (cellIndex.Char == 'x')
-                        {
-                            cellIndex.Char = '.';
-                        } 
-                        else if (cellIndex.Char == 'n')
-                        {
-                            cellIndex.Char = 'X';
-                        }
-                    }
+                    playData.SetNextGeneration();
 
                     playData.WriteArea(outFile);
                     break;
+                }
+                default:
+                {
+                    throw new ArgumentOutOfRangeException();
                 }
             }
         }

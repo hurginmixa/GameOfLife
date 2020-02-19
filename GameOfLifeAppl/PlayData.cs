@@ -6,11 +6,13 @@ namespace GameOfLifeAppl
 {
     internal class PlayData
     {
-        public class CellIndex1 : ICellIndex
+        #region private class CellIndex : ICellIndex
+
+        private class CellIndex : ICellIndex
         {
             private readonly PlayData _playData;
 
-            public CellIndex1(int col, int row, PlayData playData)
+            public CellIndex(int col, int row, PlayData playData)
             {
                 _playData = playData;
                 Col = col;
@@ -22,6 +24,31 @@ namespace GameOfLifeAppl
             public int Row { get; }
 
             public ref char Char => ref _playData._area[Col, Row];
+        }
+
+        #endregion
+
+        public interface INewCellStrategy
+        {
+            bool IsNewCell(ICellIndex cellIndex, PlayData playData);
+        }
+
+        public class RegularNewCellStrategy : INewCellStrategy
+        {
+            public bool IsNewCell(ICellIndex cellIndex, PlayData playData)
+            {
+                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
+                return neighborsCount == 3;
+            }
+        }
+
+        public class HighLifeNewCellStrategy : INewCellStrategy
+        {
+            public bool IsNewCell(ICellIndex cellIndex, PlayData playData)
+            {
+                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
+                return neighborsCount == 3 || neighborsCount == 6;
+            }
         }
 
         private readonly int _cols;
@@ -109,7 +136,7 @@ namespace GameOfLifeAppl
             {
                 for (int row = 0; row < _rows; row++)
                 {
-                    var cellIndex = new CellIndex1(col, row, this);
+                    var cellIndex = new CellIndex(col, row, this);
                     if (filter(cellIndex))
                     {
                         yield return cellIndex;
@@ -118,11 +145,11 @@ namespace GameOfLifeAppl
             }
         }
 
-        public bool IsValidCoords(ICellIndex cellIndex) => cellIndex.Col >= 0 && cellIndex.Col < _cols && cellIndex.Row >= 0 && cellIndex.Row < _rows;
+        private bool IsValidCoords(ICellIndex cellIndex) => cellIndex.Col >= 0 && cellIndex.Col < _cols && cellIndex.Row >= 0 && cellIndex.Row < _rows;
 
         public bool IsLifeCoords(ICellIndex cellIndex) => IsValidCoords(cellIndex) && (_area[cellIndex.Col, cellIndex.Row] == 'X' || _area[cellIndex.Col, cellIndex.Row] == 'x');
 
-        public int GetLifeNeighborsCount(ICellIndex cellIndex)
+        private int GetLifeNeighborsCount(ICellIndex cellIndex)
         {
             int neighborsCount = 0;
 
@@ -135,7 +162,7 @@ namespace GameOfLifeAppl
                         continue;
                     }
 
-                    if (IsLifeCoords(new CellIndex1(cellIndex.Col + deltaCol, cellIndex.Row + deltaRow, this)))
+                    if (IsLifeCoords(new CellIndex(cellIndex.Col + deltaCol, cellIndex.Row + deltaRow, this)))
                     {
                         neighborsCount++;
                     }
@@ -156,7 +183,7 @@ namespace GameOfLifeAppl
             return neighborsCount == 2 || neighborsCount == 3;
         }
 
-        public bool IsDyingCell(ICellIndex cellIndex)
+        private bool IsDyingCell(ICellIndex cellIndex)
         {
             if (!IsLifeCoords(cellIndex))
             {
@@ -167,15 +194,9 @@ namespace GameOfLifeAppl
             return neighborsCount != 2 && neighborsCount != 3;
         }
 
-        public bool IsNewCell(ICellIndex cellIndex)
+        public bool IsNewCell(ICellIndex cellIndex, INewCellStrategy newCellStrategy)
         {
-            if (IsLifeCoords(cellIndex))
-            {
-                return false;
-            }
-
-            var neighborsCount = GetLifeNeighborsCount(cellIndex);
-            return neighborsCount == 3;
+            return !IsLifeCoords(cellIndex) && newCellStrategy.IsNewCell(cellIndex, this);
         }
 
         public void WriteArea(string outFile)
@@ -195,5 +216,56 @@ namespace GameOfLifeAppl
                 }
             }
         }
+
+        public void SetNextGeneration()
+        {
+            string paramValue;
+            if (!Params.TryGetValue("Rules", out paramValue))
+            {
+                paramValue = "Life";
+            }
+
+            INewCellStrategy newCellStrategy;
+            if (paramValue == "Life")
+            {
+                newCellStrategy = new RegularNewCellStrategy();
+            }
+            else if (paramValue == "HighLife")
+            {
+                newCellStrategy = new HighLifeNewCellStrategy();
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(paramValue));
+            }
+
+            foreach (var cellIndex in GetCellIndexes())
+            {
+                if (IsDyingCell(cellIndex))
+                {
+                    cellIndex.Char = 'x';
+                }
+                else
+                {
+                    if (IsNewCell(cellIndex, newCellStrategy))
+                    {
+                        cellIndex.Char = 'n';
+                    }
+                }
+            }
+
+            foreach (var cellIndex in GetCellIndexes())
+            {
+                if (cellIndex.Char == 'x')
+                {
+                    cellIndex.Char = '.';
+                }
+                else if (cellIndex.Char == 'n')
+                {
+                    cellIndex.Char = 'X';
+                }
+            }
+        }
+
     }
 }
