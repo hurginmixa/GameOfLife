@@ -28,26 +28,55 @@ namespace GameOfLifeAppl
 
         #endregion
 
-        public interface INewCellStrategy
+        public interface ICellProcessingStrategy
         {
-            bool IsNewCell(ICellIndex cellIndex, PlayData playData);
+            bool IsNewCellPolicy(ICellIndex cellIndex, PlayData playData);
+            
+            bool IsDyingCellPolicy(ICellIndex cellIndex, PlayData playData);
         }
 
-        public class RegularNewCellStrategy : INewCellStrategy
+        public class RegularProcessingCellStrategy : ICellProcessingStrategy
         {
-            public bool IsNewCell(ICellIndex cellIndex, PlayData playData)
+            public bool IsNewCellPolicy(ICellIndex cellIndex, PlayData playData)
             {
                 var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
                 return neighborsCount == 3;
             }
+
+            public bool IsDyingCellPolicy(ICellIndex cellIndex, PlayData playData)
+            {
+                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
+                return neighborsCount != 2 && neighborsCount != 3;
+            }
         }
 
-        public class HighLifeNewCellStrategy : INewCellStrategy
+        private class HighLifeProcessingCellStrategy : ICellProcessingStrategy
         {
-            public bool IsNewCell(ICellIndex cellIndex, PlayData playData)
+            public bool IsNewCellPolicy(ICellIndex cellIndex, PlayData playData)
             {
                 var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
                 return neighborsCount == 3 || neighborsCount == 6;
+            }
+
+            public bool IsDyingCellPolicy(ICellIndex cellIndex, PlayData playData)
+            {
+                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
+                return neighborsCount != 2 && neighborsCount != 3;
+            }
+        }
+
+        private class DiamoebaProcessingCellStrategy : ICellProcessingStrategy
+        {
+            public bool IsNewCellPolicy(ICellIndex cellIndex, PlayData playData)
+            {
+                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
+                return neighborsCount == 3 || neighborsCount == 5 || neighborsCount == 6 || neighborsCount == 7 || neighborsCount == 8;
+            }
+
+            public bool IsDyingCellPolicy(ICellIndex cellIndex, PlayData playData)
+            {
+                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
+                return neighborsCount != 5 && neighborsCount != 6 && neighborsCount != 7 && neighborsCount != 8;
             }
         }
 
@@ -183,20 +212,14 @@ namespace GameOfLifeAppl
             return neighborsCount == 2 || neighborsCount == 3;
         }
 
-        private bool IsDyingCell(ICellIndex cellIndex)
+        private bool IsDyingCell(ICellIndex cellIndex, ICellProcessingStrategy newCellStrategy)
         {
-            if (!IsLifeCoords(cellIndex))
-            {
-                return false;
-            }
-
-            var neighborsCount = GetLifeNeighborsCount(cellIndex);
-            return neighborsCount != 2 && neighborsCount != 3;
+            return IsLifeCoords(cellIndex) && newCellStrategy.IsDyingCellPolicy(cellIndex, this);
         }
 
-        public bool IsNewCell(ICellIndex cellIndex, INewCellStrategy newCellStrategy)
+        public bool IsNewCell(ICellIndex cellIndex, ICellProcessingStrategy newCellStrategy)
         {
-            return !IsLifeCoords(cellIndex) && newCellStrategy.IsNewCell(cellIndex, this);
+            return !IsLifeCoords(cellIndex) && newCellStrategy.IsNewCellPolicy(cellIndex, this);
         }
 
         public void WriteArea(string outFile)
@@ -225,14 +248,18 @@ namespace GameOfLifeAppl
                 paramValue = "Life";
             }
 
-            INewCellStrategy newCellStrategy;
+            ICellProcessingStrategy newCellStrategy;
             if (paramValue == "Life")
             {
-                newCellStrategy = new RegularNewCellStrategy();
+                newCellStrategy = new RegularProcessingCellStrategy();
             }
             else if (paramValue == "HighLife")
             {
-                newCellStrategy = new HighLifeNewCellStrategy();
+                newCellStrategy = new HighLifeProcessingCellStrategy();
+            }
+            else if (paramValue == "Diamoeba")
+            {
+                newCellStrategy = new DiamoebaProcessingCellStrategy();
             }
             else
             {
@@ -241,7 +268,7 @@ namespace GameOfLifeAppl
 
             foreach (var cellIndex in GetCellIndexes())
             {
-                if (IsDyingCell(cellIndex))
+                if (IsDyingCell(cellIndex, newCellStrategy))
                 {
                     cellIndex.Char = 'x';
                 }

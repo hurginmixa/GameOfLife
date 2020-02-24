@@ -47,7 +47,7 @@ namespace GameOfLifeAppl
                 }
                 case "CalcNewCells":
                 {
-                    int count = playData.GetCellIndexes().Count(c => playData.IsNewCell(c, new PlayData.RegularNewCellStrategy()));
+                    int count = playData.GetCellIndexes().Count(c => playData.IsNewCell(c, new PlayData.RegularProcessingCellStrategy()));
                     File.WriteAllText(outFile, count.ToString());
                     break;
                 }

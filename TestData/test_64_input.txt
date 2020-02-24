@@ -1,0 +1,7 @@
+NextGeneration
+Rules:Diamoeba
+
+5 3
+.....
+XXXXX
+.....

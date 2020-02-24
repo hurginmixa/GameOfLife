@@ -24,7 +24,19 @@ namespace GameOfLifeTests
                 {
                     var testNum = int.Parse(file.Split('_')[1]);
 
-                    TestCase(testDataPath, testNum);
+                    Console.Write($"Test {testNum}");
+
+                    try
+                    {
+                        TestCase(testDataPath, testNum);
+                        Console.WriteLine(" - Ok");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(" - Fail");
+                        throw;
+                    }
+
                 }
             });
         }
