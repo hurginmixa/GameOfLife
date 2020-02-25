@@ -36,12 +36,12 @@ namespace GameOfLifeAppl
         private const char NewCellChar = 'n';
         private const char EmptyCellChar = '.';
 
-        private readonly int _cols;
-        private readonly int _rows;
         private readonly char[,] _area;
 
         public PlayData(string[] data)
         {
+            #region Dictionary<string, string> GetParams(ref int pos)
+
             Dictionary<string, string> GetParams(ref int pos)
             {
                 Dictionary<string, string> dataParams = new Dictionary<string, string>();
@@ -57,6 +57,10 @@ namespace GameOfLifeAppl
                 return dataParams;
             }
 
+            #endregion
+
+            #region void GetDimensions(ref int pos, out int cols, out int rows)
+
             void GetDimensions(ref int pos, out int cols, out int rows)
             {
                 if (pos >= data.Length)
@@ -69,6 +73,10 @@ namespace GameOfLifeAppl
                 cols = int.Parse(parts[0]);
                 rows = int.Parse(parts[1]);
             }
+
+            #endregion
+
+            #region char[,] GetArea(ref int pos, int cols, int rows)
 
             char[,] GetArea(ref int pos, int cols, int rows)
             {
@@ -90,36 +98,38 @@ namespace GameOfLifeAppl
                 return area;
             }
 
+            #endregion
+
             Command = data[0];
 
-            int i = 1;
+            int parsingRow = 1;
 
-            Params = GetParams(ref i);
+            Params = GetParams(ref parsingRow);
 
-            i += 1;
+            parsingRow += 1;
 
-            GetDimensions(ref i, out _cols, out _rows);
+            GetDimensions(ref parsingRow, out var colCount, out var rowCount);
 
-            i += 1;
+            parsingRow += 1;
 
-            _area = GetArea(ref i, _cols, _rows);
+            _area = GetArea(ref parsingRow, colCount, rowCount);
         }
 
         public IReadOnlyDictionary<string, string> Params;
 
         public string Command { get; }
 
-        public int Cols => _cols;
+        public int Cols => _area.GetLength(0);
 
-        public int Rows => _rows;
+        public int Rows => _area.GetLength(1);
 
         public IEnumerable<ICellIndex> GetCellIndexes() => GetCellIndexes(c => true);
         
         public IEnumerable<ICellIndex> GetCellIndexes(Func<ICellIndex, bool> filter)
         {
-            for (int col = 0; col < _cols; col++)
+            for (int col = 0; col < Cols; col++)
             {
-                for (int row = 0; row < _rows; row++)
+                for (int row = 0; row < Rows; row++)
                 {
                     if (!TryMakeCellIndex(col, row, out var cellIndex))
                     {
@@ -136,7 +146,7 @@ namespace GameOfLifeAppl
 
         public bool TryMakeCellIndex(int col, int row, out ICellIndex cellIndex)
         {
-            cellIndex = col >= 0 && col < _cols && row >= 0 && row < _rows 
+            cellIndex = col >= 0 && col < Cols && row >= 0 && row < Rows 
                 ? new CellIndex(col, row, this) 
                 : null;
 
@@ -147,11 +157,11 @@ namespace GameOfLifeAppl
         {
             using (TextWriter tw = new StreamWriter(outFile))
             {
-                tw.WriteLine($"{_cols} {_rows}");
+                tw.WriteLine($"{Cols} {Rows}");
                 
-                for (int row = 0; row < _rows; row++)
+                for (int row = 0; row < Rows; row++)
                 {
-                    for (int col = 0; col < _cols; col++)
+                    for (int col = 0; col < Cols; col++)
                     {
                         tw.Write(_area[col, row]);
                     }
