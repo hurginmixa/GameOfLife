@@ -31,7 +31,7 @@ namespace GameOfLifeTests
                         TestCase(testDataPath, testNum);
                         Console.WriteLine(" - Ok");
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         Console.WriteLine(" - Fail");
                         throw;

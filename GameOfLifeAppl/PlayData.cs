@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using GameOfLifeAppl.Strategies;
 
 namespace GameOfLifeAppl
 {
@@ -24,61 +25,16 @@ namespace GameOfLifeAppl
             public int Row { get; }
 
             public ref char Char => ref _playData._area[Col, Row];
+
+            public bool IsLifeCell => Char == LifeCellChar || Char == DyingCellChar;
         }
 
         #endregion
 
-        public interface ICellProcessingStrategy
-        {
-            bool IsNewCellPolicy(ICellIndex cellIndex, PlayData playData);
-            
-            bool IsDyingCellPolicy(ICellIndex cellIndex, PlayData playData);
-        }
-
-        public class RegularProcessingCellStrategy : ICellProcessingStrategy
-        {
-            public bool IsNewCellPolicy(ICellIndex cellIndex, PlayData playData)
-            {
-                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
-                return neighborsCount == 3;
-            }
-
-            public bool IsDyingCellPolicy(ICellIndex cellIndex, PlayData playData)
-            {
-                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
-                return neighborsCount != 2 && neighborsCount != 3;
-            }
-        }
-
-        private class HighLifeProcessingCellStrategy : ICellProcessingStrategy
-        {
-            public bool IsNewCellPolicy(ICellIndex cellIndex, PlayData playData)
-            {
-                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
-                return neighborsCount == 3 || neighborsCount == 6;
-            }
-
-            public bool IsDyingCellPolicy(ICellIndex cellIndex, PlayData playData)
-            {
-                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
-                return neighborsCount != 2 && neighborsCount != 3;
-            }
-        }
-
-        private class DiamoebaProcessingCellStrategy : ICellProcessingStrategy
-        {
-            public bool IsNewCellPolicy(ICellIndex cellIndex, PlayData playData)
-            {
-                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
-                return neighborsCount == 3 || neighborsCount == 5 || neighborsCount == 6 || neighborsCount == 7 || neighborsCount == 8;
-            }
-
-            public bool IsDyingCellPolicy(ICellIndex cellIndex, PlayData playData)
-            {
-                var neighborsCount = playData.GetLifeNeighborsCount(cellIndex);
-                return neighborsCount != 5 && neighborsCount != 6 && neighborsCount != 7 && neighborsCount != 8;
-            }
-        }
+        private const char LifeCellChar = 'X';
+        private const char DyingCellChar = 'x';
+        private const char NewCellChar = 'n';
+        private const char EmptyCellChar = '.';
 
         private readonly int _cols;
         private readonly int _rows;
@@ -165,7 +121,11 @@ namespace GameOfLifeAppl
             {
                 for (int row = 0; row < _rows; row++)
                 {
-                    var cellIndex = new CellIndex(col, row, this);
+                    if (!TryMakeCellIndex(col, row, out var cellIndex))
+                    {
+                        continue;
+                    }
+
                     if (filter(cellIndex))
                     {
                         yield return cellIndex;
@@ -174,52 +134,13 @@ namespace GameOfLifeAppl
             }
         }
 
-        private bool IsValidCoords(ICellIndex cellIndex) => cellIndex.Col >= 0 && cellIndex.Col < _cols && cellIndex.Row >= 0 && cellIndex.Row < _rows;
-
-        public bool IsLifeCoords(ICellIndex cellIndex) => IsValidCoords(cellIndex) && (_area[cellIndex.Col, cellIndex.Row] == 'X' || _area[cellIndex.Col, cellIndex.Row] == 'x');
-
-        private int GetLifeNeighborsCount(ICellIndex cellIndex)
+        public bool TryMakeCellIndex(int col, int row, out ICellIndex cellIndex)
         {
-            int neighborsCount = 0;
+            cellIndex = col >= 0 && col < _cols && row >= 0 && row < _rows 
+                ? new CellIndex(col, row, this) 
+                : null;
 
-            for (int deltaCol = -1; deltaCol <= 1; deltaCol++)
-            {
-                for (int deltaRow = -1; deltaRow <= 1; deltaRow++)
-                {
-                    if (deltaCol == 0 && deltaRow == 0)
-                    {
-                        continue;
-                    }
-
-                    if (IsLifeCoords(new CellIndex(cellIndex.Col + deltaCol, cellIndex.Row + deltaRow, this)))
-                    {
-                        neighborsCount++;
-                    }
-                }
-            }
-
-            return neighborsCount;
-        }
-
-        public bool IsSurvivingCell(ICellIndex cellIndex)
-        {
-            if (!IsLifeCoords(cellIndex))
-            {
-                return false;
-            }
-
-            var neighborsCount = GetLifeNeighborsCount(cellIndex);
-            return neighborsCount == 2 || neighborsCount == 3;
-        }
-
-        private bool IsDyingCell(ICellIndex cellIndex, ICellProcessingStrategy newCellStrategy)
-        {
-            return IsLifeCoords(cellIndex) && newCellStrategy.IsDyingCellPolicy(cellIndex, this);
-        }
-
-        public bool IsNewCell(ICellIndex cellIndex, ICellProcessingStrategy newCellStrategy)
-        {
-            return !IsLifeCoords(cellIndex) && newCellStrategy.IsNewCellPolicy(cellIndex, this);
+            return cellIndex != null;
         }
 
         public void WriteArea(string outFile)
@@ -240,59 +161,43 @@ namespace GameOfLifeAppl
             }
         }
 
-        public void SetNextGeneration()
+        public void MakeNextGeneration()
         {
-            string paramValue;
-            if (!Params.TryGetValue("Rules", out paramValue))
+            if (!Params.TryGetValue("Rules", out string paramValue))
             {
                 paramValue = "Life";
             }
 
-            ICellProcessingStrategy newCellStrategy;
-            if (paramValue == "Life")
-            {
-                newCellStrategy = new RegularProcessingCellStrategy();
-            }
-            else if (paramValue == "HighLife")
-            {
-                newCellStrategy = new HighLifeProcessingCellStrategy();
-            }
-            else if (paramValue == "Diamoeba")
-            {
-                newCellStrategy = new DiamoebaProcessingCellStrategy();
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(paramValue));
-            }
+            ICellProcessingStrategy strategy = ACellProcessingStrategy.GetStrategy(paramValue);
 
             foreach (var cellIndex in GetCellIndexes())
             {
-                if (IsDyingCell(cellIndex, newCellStrategy))
+                if (strategy.IsDyingCellPolicy(cellIndex, this))
                 {
-                    cellIndex.Char = 'x';
+                    cellIndex.Char = DyingCellChar;
+                    continue;
                 }
-                else
+
+                if (strategy.IsNewCellPolicy(cellIndex, this))
                 {
-                    if (IsNewCell(cellIndex, newCellStrategy))
-                    {
-                        cellIndex.Char = 'n';
-                    }
+                    cellIndex.Char = NewCellChar;
+                    continue;
                 }
             }
 
             foreach (var cellIndex in GetCellIndexes())
             {
-                if (cellIndex.Char == 'x')
+                switch (cellIndex.Char)
                 {
-                    cellIndex.Char = '.';
-                }
-                else if (cellIndex.Char == 'n')
-                {
-                    cellIndex.Char = 'X';
+                    case DyingCellChar:
+                        cellIndex.Char = EmptyCellChar;
+                        continue;
+
+                    case NewCellChar:
+                        cellIndex.Char = LifeCellChar;
+                        continue;
                 }
             }
         }
-
     }
 }

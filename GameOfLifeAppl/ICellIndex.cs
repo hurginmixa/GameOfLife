@@ -7,5 +7,7 @@
         int Row { get; }
 
         ref char Char { get; }
+
+        bool IsLifeCell { get; }
     }
 }

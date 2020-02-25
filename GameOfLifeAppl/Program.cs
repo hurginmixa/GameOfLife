@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GameOfLifeAppl.Strategies;
 
 namespace GameOfLifeAppl
 {
@@ -30,7 +31,7 @@ namespace GameOfLifeAppl
                 }
                 case "CalcLiveCells":
                 {
-                    int count = playData.GetCellIndexes(c => playData.IsLifeCoords(c)).Count();
+                    int count = playData.GetCellIndexes(c => c.IsLifeCell).Count();
                     File.WriteAllText(outFile, count.ToString());
                     break;
                 }
@@ -41,19 +42,25 @@ namespace GameOfLifeAppl
                 }
                 case "CalcSurvivingCells":
                 {
-                    int count = playData.GetCellIndexes().Count(c => playData.IsSurvivingCell(c));
+                    ICellProcessingStrategy strategy = new RegularProcessingCellStrategy();
+                    
+                    int count = playData.GetCellIndexes().Count(c => c.IsLifeCell && !strategy.IsDyingCellPolicy(c, playData));
+                    
                     File.WriteAllText(outFile, count.ToString());
                     break;
                 }
                 case "CalcNewCells":
                 {
-                    int count = playData.GetCellIndexes().Count(c => playData.IsNewCell(c, new PlayData.RegularProcessingCellStrategy()));
+                    ICellProcessingStrategy strategy = new RegularProcessingCellStrategy();
+
+                    int count = playData.GetCellIndexes().Count(c => strategy.IsNewCellPolicy(c, playData));
+                    
                     File.WriteAllText(outFile, count.ToString());
                     break;
                 }
                 case "NextGeneration":
                 {
-                    playData.SetNextGeneration();
+                    playData.MakeNextGeneration();
 
                     playData.WriteArea(outFile);
                     break;
