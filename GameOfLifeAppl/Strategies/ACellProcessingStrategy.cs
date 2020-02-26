@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GameOfLifeAppl.Strategies
 {
@@ -18,31 +20,47 @@ namespace GameOfLifeAppl.Strategies
 
         protected abstract bool CheckNeighborsCountForDying(ICellIndex cellIndex, PlayData playData);
 
-        public static ICellProcessingStrategy GetStrategy(string paramValue)
+        public static ICellProcessingStrategy GetStrategy(string strategyName, IReadOnlyDictionary<string, string> @params)
         {
             ICellProcessingStrategy strategy;
-            switch (paramValue)
+            switch (strategyName)
             {
                 case "Life":
-                    strategy = new RegularProcessingCellStrategy();
+                {
+                    var survivalsNeighborsCounts = new[] {2, 3};
+                    
+                    var newNeighborsCounts = new[] {3};
+
+                    if (@params.TryGetValue("Survivals", out string data))
+                    {
+                        survivalsNeighborsCounts = data.Split(',').Select(int.Parse).ToArray();
+                    }
+
+                    if (@params.TryGetValue("NewBirth", out data))
+                    {
+                        newNeighborsCounts = data.Split(',').Select(int.Parse).ToArray();
+                    }
+
+                    strategy = new ParametersProcessingCellStrategy(survivalsNeighborsCounts: survivalsNeighborsCounts, newNeighborsCounts: newNeighborsCounts);
                     break;
+                }
 
                 case "HighLife":
-                    strategy = new HighLifeProcessingCellStrategy();
+                    strategy = new ParametersProcessingCellStrategy(survivalsNeighborsCounts: new[] {2, 3}, newNeighborsCounts: new[] {3, 6});
                     break;
 
                 case "Diamoeba":
-                    strategy = new DiamoebaProcessingCellStrategy();
+                    strategy = new ParametersProcessingCellStrategy(survivalsNeighborsCounts: new[] {5, 6, 7, 8}, newNeighborsCounts: new[] {3, 5, 6, 7, 8});
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(paramValue));
+                    throw new ArgumentOutOfRangeException(nameof(strategyName));
             }
 
             return strategy;
         }
 
-        public static int GetLifeNeighborsCount(ICellIndex cellIndex, PlayData playData)
+        protected static int GetLifeNeighborsCount(ICellIndex cellIndex, PlayData playData)
         {
             int neighborsCount = 0;
 

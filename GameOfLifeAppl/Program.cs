@@ -42,7 +42,7 @@ namespace GameOfLifeAppl
                 }
                 case "CalcSurvivingCells":
                 {
-                    ICellProcessingStrategy strategy = new RegularProcessingCellStrategy();
+                    ICellProcessingStrategy strategy = ACellProcessingStrategy.GetStrategy("Life", playData.Params);
                     
                     int count = playData.GetCellIndexes().Count(c => c.IsLifeCell && !strategy.IsDyingCellPolicy(c, playData));
                     
@@ -51,7 +51,7 @@ namespace GameOfLifeAppl
                 }
                 case "CalcNewCells":
                 {
-                    ICellProcessingStrategy strategy = new RegularProcessingCellStrategy();
+                    ICellProcessingStrategy strategy = ACellProcessingStrategy.GetStrategy("Life", playData.Params);
 
                     int count = playData.GetCellIndexes().Count(c => strategy.IsNewCellPolicy(c, playData));
                     

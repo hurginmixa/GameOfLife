@@ -173,12 +173,12 @@ namespace GameOfLifeAppl
 
         public void MakeNextGeneration()
         {
-            if (!Params.TryGetValue("Rules", out string paramValue))
+            if (!Params.TryGetValue("Rules", out string strategyName))
             {
-                paramValue = "Life";
+                strategyName = "Life";
             }
 
-            ICellProcessingStrategy strategy = ACellProcessingStrategy.GetStrategy(paramValue);
+            ICellProcessingStrategy strategy = ACellProcessingStrategy.GetStrategy(strategyName, Params);
 
             foreach (var cellIndex in GetCellIndexes())
             {

@@ -1,0 +1,8 @@
+NextGeneration
+Survivals:5,6,7,8
+NewBirth:3,5,6,7,8
+
+5 3
+.....
+XXXXX
+.....

@@ -1,0 +1,10 @@
+CalcNewCells
+Survivals:2,3
+NewBirth:3,6
+
+7 5
+.......
+..XXX..
+.......
+..XXX..
+.......

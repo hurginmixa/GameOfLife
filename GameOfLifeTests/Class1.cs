@@ -24,21 +24,25 @@ namespace GameOfLifeTests
                 {
                     var testNum = int.Parse(file.Split('_')[1]);
 
-                    Console.Write($"Test {testNum}");
-
-                    try
-                    {
-                        TestCase(testDataPath, testNum);
-                        Console.WriteLine(" - Ok");
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine(" - Fail");
-                        throw;
-                    }
-
+                    RunTest(testNum);
                 }
             });
+        }
+
+        private void RunTest(int testNum)
+        {
+            Console.Write($"Test {testNum}");
+
+            try
+            {
+                TestCase(testNum);
+                Console.WriteLine(" - Ok");
+            }
+            catch
+            {
+                Console.WriteLine(" - Fail");
+                throw;
+            }
         }
 
         private static string TestDataPath()
@@ -47,8 +51,10 @@ namespace GameOfLifeTests
             return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(uri.LocalPath), "..", "TestData"));
         }
 
-        private static void TestCase(string testDataPath, int testNum)
+        private static void TestCase(int testNum)
         {
+            string testDataPath = TestDataPath();
+
             string inpFileName = Path.Combine(testDataPath, $"test_{testNum}_input.txt");
             string actFileName = Path.Combine(testDataPath, $"test_{testNum}_active.txt");
             string expFileName = Path.Combine(testDataPath, $"test_{testNum}_expected.txt");

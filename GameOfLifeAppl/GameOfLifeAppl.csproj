@@ -44,14 +44,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Strategies\ACellProcessingStrategy.cs" />
-    <Compile Include="Strategies\DiamoebaProcessingCellStrategy.cs" />
-    <Compile Include="Strategies\HighLifeProcessingCellStrategy.cs" />
     <Compile Include="ICellIndex.cs" />
     <Compile Include="Strategies\ICellProcessingStrategy.cs" />
     <Compile Include="PlayData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Strategies\RegularProcessingCellStrategy.cs" />
+    <Compile Include="Strategies\ParametersProcessingCellStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
