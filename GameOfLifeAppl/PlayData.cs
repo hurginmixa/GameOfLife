@@ -178,7 +178,7 @@ namespace GameOfLifeAppl
                 strategyName = "Life";
             }
 
-            ICellProcessingStrategy strategy = ACellProcessingStrategy.GetStrategy(strategyName, Params);
+            INextStepStrategy strategy = ANextStepStrategy.GetStrategy(strategyName, Params);
 
             foreach (var cellIndex in GetCellIndexes())
             {

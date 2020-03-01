@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace GameOfLifeAppl.Strategies
 {
-    internal abstract class ACellProcessingStrategy : ICellProcessingStrategy
+    internal abstract class ANextStepStrategy : INextStepStrategy
     {
         public bool IsNewCellPolicy(ICellIndex cellIndex, PlayData playData)
         {
@@ -15,14 +15,14 @@ namespace GameOfLifeAppl.Strategies
 
         public bool IsDyingCellPolicy(ICellIndex cellIndex, PlayData playData)
         {
-            return cellIndex.IsLifeCell && CheckNeighborsCountForDying(cellIndex, playData);
+            return cellIndex.IsLifeCell && !CheckNeighborsCountForSurvivals(cellIndex, playData);
         }
 
-        protected abstract bool CheckNeighborsCountForDying(ICellIndex cellIndex, PlayData playData);
+        protected abstract bool CheckNeighborsCountForSurvivals(ICellIndex cellIndex, PlayData playData);
 
-        public static ICellProcessingStrategy GetStrategy(string strategyName, IReadOnlyDictionary<string, string> @params)
+        public static INextStepStrategy GetStrategy(string strategyName, IReadOnlyDictionary<string, string> @params)
         {
-            ICellProcessingStrategy strategy;
+            INextStepStrategy strategy;
             switch (strategyName)
             {
                 case "Life":
@@ -41,16 +41,16 @@ namespace GameOfLifeAppl.Strategies
                         newNeighborsCounts = data.Split(',').Select(int.Parse).ToArray();
                     }
 
-                    strategy = new ParametersProcessingCellStrategy(survivalsNeighborsCounts: survivalsNeighborsCounts, newNeighborsCounts: newNeighborsCounts);
+                    strategy = new ParametersNextStepStrategy(survivalsNeighborsCounts: survivalsNeighborsCounts, newNeighborsCounts: newNeighborsCounts);
                     break;
                 }
 
                 case "HighLife":
-                    strategy = new ParametersProcessingCellStrategy(survivalsNeighborsCounts: new[] {2, 3}, newNeighborsCounts: new[] {3, 6});
+                    strategy = new ParametersNextStepStrategy(survivalsNeighborsCounts: new[] {2, 3}, newNeighborsCounts: new[] {3, 6});
                     break;
 
                 case "Diamoeba":
-                    strategy = new ParametersProcessingCellStrategy(survivalsNeighborsCounts: new[] {5, 6, 7, 8}, newNeighborsCounts: new[] {3, 5, 6, 7, 8});
+                    strategy = new ParametersNextStepStrategy(survivalsNeighborsCounts: new[] {5, 6, 7, 8}, newNeighborsCounts: new[] {3, 5, 6, 7, 8});
                     break;
 
                 default:
@@ -64,6 +64,19 @@ namespace GameOfLifeAppl.Strategies
         {
             int neighborsCount = 0;
 
+            foreach (var tmpCellIndex in CellIndexEnum(cellIndex, playData))
+            {
+                if (tmpCellIndex.IsLifeCell)
+                {
+                    neighborsCount++;
+                }
+            }
+
+            return neighborsCount;
+        }
+
+        private static IEnumerable<ICellIndex> CellIndexEnum(ICellIndex cellIndex, PlayData playData)
+        {
             for (int deltaCol = -1; deltaCol <= 1; deltaCol++)
             {
                 for (int deltaRow = -1; deltaRow <= 1; deltaRow++)
@@ -78,15 +91,10 @@ namespace GameOfLifeAppl.Strategies
 
                     if (playData.TryMakeCellIndex(tmpCol, tmpRow, out ICellIndex tmpCellIndex))
                     {
-                        if (tmpCellIndex.IsLifeCell)
-                        {
-                            neighborsCount++;
-                        }
+                        yield return tmpCellIndex;
                     }
                 }
             }
-
-            return neighborsCount;
         }
     }
 }

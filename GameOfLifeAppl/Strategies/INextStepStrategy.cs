@@ -1,6 +1,6 @@
 ﻿namespace GameOfLifeAppl.Strategies
 {
-    internal interface ICellProcessingStrategy
+    internal interface INextStepStrategy
     {
         bool IsNewCellPolicy(ICellIndex cellIndex, PlayData playData);
             
