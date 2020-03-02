@@ -42,18 +42,20 @@ namespace GameOfLifeAppl
                 }
                 case "CalcSurvivingCells":
                 {
-                    INextStepStrategy strategy = ANextStepStrategy.GetStrategy("Life", playData.Params);
+                    IRuleStrategy ruleStrategy = ARuleStrategy.GetStrategy("Life", playData);
+                    INeighborhoodStrategy neighborhoodStrategy = ANeighborhoodStrategy.GetStrategy(playData);
                     
-                    int count = playData.GetCellIndexes().Count(c => c.IsLifeCell && !strategy.IsDyingCellPolicy(c, playData));
+                    int count = playData.GetCellIndexes().Count(c => c.IsLifeCell && !ruleStrategy.IsDyingCellPolicy(c, neighborhoodStrategy.GetLifeNeighborhoodCount(c)));
                     
                     File.WriteAllText(outFile, count.ToString());
                     break;
                 }
                 case "CalcNewCells":
                 {
-                    INextStepStrategy strategy = ANextStepStrategy.GetStrategy("Life", playData.Params);
+                    IRuleStrategy ruleStrategy = ARuleStrategy.GetStrategy("Life", playData);
+                    INeighborhoodStrategy neighborhoodStrategy = ANeighborhoodStrategy.GetStrategy(playData);
 
-                    int count = playData.GetCellIndexes().Count(c => strategy.IsNewCellPolicy(c, playData));
+                    int count = playData.GetCellIndexes().Count(c => ruleStrategy.IsNewCellPolicy(c, neighborhoodStrategy.GetLifeNeighborhoodCount(c)));
                     
                     File.WriteAllText(outFile, count.ToString());
                     break;

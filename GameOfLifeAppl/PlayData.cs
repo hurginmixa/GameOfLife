@@ -123,7 +123,7 @@ namespace GameOfLifeAppl
 
         public int Rows => _area.GetLength(1);
 
-        public IEnumerable<ICellIndex> GetCellIndexes() => GetCellIndexes(c => true);
+        public IEnumerable<ICellIndex> GetCellIndexes() => GetCellIndexes(filter: c => true);
         
         public IEnumerable<ICellIndex> GetCellIndexes(Func<ICellIndex, bool> filter)
         {
@@ -173,22 +173,25 @@ namespace GameOfLifeAppl
 
         public void MakeNextGeneration()
         {
-            if (!Params.TryGetValue("Rules", out string strategyName))
-            {
-                strategyName = "Life";
-            }
+            var rulesStrategyName = GetRulesStrategyName();
 
-            INextStepStrategy strategy = ANextStepStrategy.GetStrategy(strategyName, Params);
+            var neighborhoodStrategyName = NeighborhoodStrategyName();
+
+            IRuleStrategy ruleStrategy = ARuleStrategy.GetStrategy(rulesStrategyName, this);
+
+            INeighborhoodStrategy neighborhood = ANeighborhoodStrategy.GetStrategy(this);
 
             foreach (var cellIndex in GetCellIndexes())
             {
-                if (strategy.IsDyingCellPolicy(cellIndex, this))
+                var neighborhoodCount = neighborhood.GetLifeNeighborhoodCount(cellIndex);
+
+                if (ruleStrategy.IsDyingCellPolicy(cellIndex, neighborhoodCount))
                 {
                     cellIndex.Char = DyingCellChar;
                     continue;
                 }
 
-                if (strategy.IsNewCellPolicy(cellIndex, this))
+                if (ruleStrategy.IsNewCellPolicy(cellIndex, neighborhoodCount))
                 {
                     cellIndex.Char = NewCellChar;
                     continue;
@@ -208,6 +211,26 @@ namespace GameOfLifeAppl
                         continue;
                 }
             }
+        }
+
+        public string NeighborhoodStrategyName()
+        {
+            if (!Params.TryGetValue("Neighborhood", out string neighborhoodStrategyName))
+            {
+                neighborhoodStrategyName = "Moore";
+            }
+
+            return neighborhoodStrategyName;
+        }
+
+        public string GetRulesStrategyName()
+        {
+            if (!Params.TryGetValue("Rules", out string rulesStrategyName))
+            {
+                rulesStrategyName = "Life";
+            }
+
+            return rulesStrategyName;
         }
     }
 }

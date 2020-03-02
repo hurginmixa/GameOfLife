@@ -43,13 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Strategies\ANextStepStrategy.cs" />
+    <Compile Include="Strategies\ANeighborhoodStrategy.cs" />
+    <Compile Include="Strategies\INeighborhoodStrategy.cs" />
+    <Compile Include="Strategies\MooreNeighborhoodStrategy.cs" />
+    <Compile Include="Strategies\ARuleStrategy.cs" />
     <Compile Include="ICellIndex.cs" />
-    <Compile Include="Strategies\INextStepStrategy.cs" />
+    <Compile Include="Strategies\IRuleStrategy.cs" />
     <Compile Include="PlayData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Strategies\ParametersNextStepStrategy.cs" />
+    <Compile Include="Strategies\ParametersRuleStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

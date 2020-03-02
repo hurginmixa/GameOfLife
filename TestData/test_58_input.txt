@@ -1,0 +1,8 @@
+NextGeneration
+Neighborhood:vonNeumann
+
+4 4
+.XX.
+X..X
+X..X
+.XX.

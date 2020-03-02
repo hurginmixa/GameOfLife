@@ -1,0 +1,10 @@
+CalcSurvivingCells
+Neighborhood:vonNeumann
+
+6 6
+......
+.XXXX.
+XXXXXX
+XXXXXX
+.XXXX.
+......

@@ -1,0 +1,13 @@
+CalcNewCells
+Survivals:2,3
+NewBirth:2,3,6
+Neighborhood:vonNeumann
+
+9 7
+.........
+...XXXX..
+..XXXXX..
+.XXX.XXX.
+.XX.XXX..
+..XXXX...
+.........
