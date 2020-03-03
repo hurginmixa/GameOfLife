@@ -9,7 +9,7 @@ namespace GameOfLifeAppl.Strategies
         {
         }
 
-        protected override IEnumerable<ICellIndex> CellIndexEnum(ICellIndex cellIndex)
+        protected override IEnumerable<ICellIndex> NeighborCellIndexEnum(ICellIndex cellIndex)
         {
             for (int deltaCol = -1; deltaCol <= 1; deltaCol++)
             {

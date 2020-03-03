@@ -53,6 +53,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Strategies\ParametersRuleStrategy.cs" />
+    <Compile Include="Strategies\StrategiesFactory.cs" />
+    <Compile Include="Strategies\VonNeumannNeighborhoodStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

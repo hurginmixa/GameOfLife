@@ -1,0 +1,9 @@
+NextGeneration
+Steps:2
+
+5 5
+.....
+..X..
+...X.
+.XXX.
+.....

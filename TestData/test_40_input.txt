@@ -1,0 +1,9 @@
+NextGeneration
+Steps:1
+Rules:HighLife
+
+4 4
+.X..
+..X.
+XXX.
+....

@@ -171,16 +171,22 @@ namespace GameOfLifeAppl
             }
         }
 
-        public void MakeNextGeneration()
+        public void MakeNextGenerations()
         {
-            var rulesStrategyName = GetRulesStrategyName();
+            IRuleStrategy ruleStrategy = StrategiesFactory.GetRuleStrategy(this);
 
-            var neighborhoodStrategyName = NeighborhoodStrategyName();
+            INeighborhoodStrategy neighborhood = StrategiesFactory.GetNeighborhoodStrategy(this);
 
-            IRuleStrategy ruleStrategy = ARuleStrategy.GetStrategy(rulesStrategyName, this);
+            int stepCount = GetStepCount();
 
-            INeighborhoodStrategy neighborhood = ANeighborhoodStrategy.GetStrategy(this);
+            for (int i = 0; i < stepCount; i++)
+            {
+                MakeNextGeneration(neighborhood, ruleStrategy);
+            }
+        }
 
+        private void MakeNextGeneration(INeighborhoodStrategy neighborhood, IRuleStrategy ruleStrategy)
+        {
             foreach (var cellIndex in GetCellIndexes())
             {
                 var neighborhoodCount = neighborhood.GetLifeNeighborhoodCount(cellIndex);
@@ -215,22 +221,17 @@ namespace GameOfLifeAppl
 
         public string NeighborhoodStrategyName()
         {
-            if (!Params.TryGetValue("Neighborhood", out string neighborhoodStrategyName))
-            {
-                neighborhoodStrategyName = "Moore";
-            }
-
-            return neighborhoodStrategyName;
+            return Params.TryGetValue("Neighborhood", out string neighborhoodStrategyName) ? neighborhoodStrategyName : "Moore";
         }
 
         public string GetRulesStrategyName()
         {
-            if (!Params.TryGetValue("Rules", out string rulesStrategyName))
-            {
-                rulesStrategyName = "Life";
-            }
+            return Params.TryGetValue("Rules", out string rulesStrategyName) ? rulesStrategyName : "Life";
+        }
 
-            return rulesStrategyName;
+        public int GetStepCount()
+        {
+            return Params.TryGetValue("Steps", out string txtStep) ? int.Parse(txtStep) : 1;
         }
     }
 }
