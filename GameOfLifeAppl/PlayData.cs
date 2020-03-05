@@ -99,17 +99,17 @@ namespace GameOfLifeAppl
 
             for (int i = 0; i < stepCount; i++)
             {
-                MakeNextGeneration(neighborhood, ruleStrategy);
+                MakeNextGeneration(neighborhood, ruleStrategy, Params.Generations);
             }
         }
 
-        private void MakeNextGeneration(INeighborhoodStrategy neighborhood, IRuleStrategy ruleStrategy)
+        private void MakeNextGeneration(INeighborhoodStrategy neighborhood, IRuleStrategy ruleStrategy, int maxGenerations)
         {
             foreach (var cellIndex in Area.GetCellIndexes())
             {
                 var neighborhoodCount = neighborhood.GetLifeNeighborhoodCount(cellIndex);
 
-                if (ruleStrategy.IsDyingCellPolicy(cellIndex, neighborhoodCount))
+                if (ruleStrategy.IsDyingCellPolicy(cellIndex, neighborhoodCount, maxGenerations))
                 {
                     cellIndex.SetDyingCell();
                     continue;

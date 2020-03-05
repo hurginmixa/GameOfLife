@@ -23,7 +23,7 @@ namespace GameOfLifeTests
 
             Program.TestCode(inpFileName, actFileName);
 
-            FileAssert.AreEqual(expFileName, actFileName);
+            FileAssert.AreEqual(expFileName, actFileName, $"Test Num : {testNum}");
         }
 
         static IEnumerable<TestCaseData> TestCases()

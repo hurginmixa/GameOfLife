@@ -22,6 +22,15 @@ namespace GameOfLifeAppl
         {
             PlayData playData = new PlayData(File.ReadAllLines(inFile));
 
+            Console.WriteLine($"inFile                   : {Path.GetFileName(inFile)}");
+            Console.WriteLine($"Command                  : {playData.Command}");
+            Console.WriteLine($"Generations              : {playData.Params.Generations}");
+            Console.WriteLine($"NeighborhoodStrategyName : {playData.Params.NeighborhoodStrategyName}");
+            Console.WriteLine($"RulesStrategyName        : {playData.Params.RulesStrategyName}");
+            Console.WriteLine($"Count                    : {playData.Params.Count}");
+            Console.WriteLine($"LifeNewBirth             : {playData.Params.LifeNewBirth.Combine(", ")}");
+            Console.WriteLine($"LifeSurvivals            : {playData.Params.LifeSurvivals.Combine(", ")}");
+
             switch (playData.Command)
             {
                 case "CalcFieldSize":
@@ -44,8 +53,9 @@ namespace GameOfLifeAppl
                 {
                     IRuleStrategy ruleStrategy = StrategiesFactory.GetRuleStrategy(playData);
                     INeighborhoodStrategy neighborhoodStrategy = StrategiesFactory.GetNeighborhoodStrategy(playData);
+                    var maxGenerations = playData.Params.Generations;
                     
-                    int count = playData.Area.GetCellIndexes().Count(c => c.IsLifeCell && !ruleStrategy.IsDyingCellPolicy(c, neighborhoodStrategy.GetLifeNeighborhoodCount(c)));
+                    int count = playData.Area.GetCellIndexes().Count(c => { return c.IsLifeCell && !ruleStrategy.IsDyingCellPolicy(c, neighborhoodStrategy.GetLifeNeighborhoodCount(c), maxGenerations); });
                     
                     File.WriteAllText(outFile, count.ToString());
                     break;
@@ -64,7 +74,7 @@ namespace GameOfLifeAppl
                 {
                     playData.MakeNextGenerations();
 
-                    playData.Area.WriteArea(outFile);
+                    playData.Area.WriteArea(outFile, playData.Params.UseGenerations);
                     break;
                 }
                 default:

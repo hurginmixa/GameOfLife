@@ -17,7 +17,22 @@ namespace GameOfLifeAppl.Strategies
 
         public int GetLifeNeighborhoodCount(ICellIndex cellIndex)
         {
-            return NeighborCellIndexEnum(cellIndex).Count(c => c.IsLifeCell);
+            return NeighborCellIndexEnum(cellIndex).Count(IsNeighbor);
+        }
+
+        private bool IsNeighbor(ICellIndex c)
+        {
+            if (!c.IsLifeCell)
+            {
+                return false;
+            }
+
+            if (c.Generation <= 0)
+            {
+                return true;
+            }
+
+            return !_playData.Params.UseGenerations;
         }
 
         protected abstract IEnumerable<ICellIndex> NeighborCellIndexEnum(ICellIndex cellIndex);

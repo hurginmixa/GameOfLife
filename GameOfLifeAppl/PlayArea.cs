@@ -12,7 +12,7 @@ namespace GameOfLifeAppl
         {
             private const int DyingCellChar = -2;
             private const int NewCellChar = -1;
-            private const int EmptyCellChar = 0;
+            private const int EmptyCellChar = -3;
 
             private readonly PlayArea _playArea;
 
@@ -29,9 +29,13 @@ namespace GameOfLifeAppl
 
             public bool IsLifeCell => (Cell != DyingCellChar && Cell != NewCellChar && Cell != EmptyCellChar) || Cell == DyingCellChar;
 
+            public bool IsEmptyCell => Cell == EmptyCellChar;
+
             public bool IsDyingCell => Cell == DyingCellChar;
 
             public bool IsNewCell => Cell == NewCellChar;
+
+            public int Generation => Cell;
 
             public void SetDyingCell()
             {
@@ -50,7 +54,12 @@ namespace GameOfLifeAppl
 
             public void SetLifeCell()
             {
-                Cell = 1;
+                Cell = 0;
+            }
+
+            public void IncGeneration()
+            {
+                Cell =+ 1;
             }
 
             private ref int Cell => ref _playArea[Col, Row];
@@ -79,6 +88,7 @@ namespace GameOfLifeAppl
                             break;
 
                         case 'X':
+                        case '0':
                             cellIndex.SetLifeCell();
                             break;
 
@@ -93,7 +103,7 @@ namespace GameOfLifeAppl
 
         public int Rows => _area.GetLength(1);
 
-        public ref int this[int col, int row] => ref _area[col, row];
+        private ref int this[int col, int row] => ref _area[col, row];
 
         public bool TryMakeCellIndex(int col, int row, out ICellIndex cellIndex)
         {
@@ -138,10 +148,15 @@ namespace GameOfLifeAppl
                 {
                     cellIndex.SetLifeCell();
                 }
+
+                else if (cellIndex.IsLifeCell)
+                {
+                    cellIndex.IncGeneration();
+                }
             }
         }
 
-        public void WriteArea(string outFile)
+        public void WriteArea(string outFile, bool printGenerations)
         {
             using (TextWriter tw = new StreamWriter(outFile))
             {
@@ -152,6 +167,12 @@ namespace GameOfLifeAppl
                     for (int col = 0; col < Cols; col++)
                     {
                         TryMakeCellIndex(col, row, out ICellIndex cellIndex);
+
+                        if (printGenerations)
+                        {
+                            tw.Write(cellIndex.IsLifeCell ? cellIndex.Generation.ToString()[0] : '.');
+                            continue;
+                        }
 
                         tw.Write(cellIndex.IsLifeCell ? 'X' : '.');
                     }

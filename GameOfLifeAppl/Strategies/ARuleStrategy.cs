@@ -8,14 +8,14 @@ namespace GameOfLifeAppl.Strategies
     {
         public bool IsNewCellPolicy(ICellIndex cellIndex, int neighborhoodCount)
         {
-            return !cellIndex.IsLifeCell && CheckNeighborsCountForNewCell(cellIndex, neighborhoodCount);
+            return cellIndex.IsEmptyCell && CheckNeighborsCountForNewCell(cellIndex, neighborhoodCount);
         }
 
         protected abstract bool CheckNeighborsCountForNewCell(ICellIndex cellIndex, int neighborhoodCount);
 
-        public bool IsDyingCellPolicy(ICellIndex cellIndex, int neighborhoodCount)
+        public bool IsDyingCellPolicy(ICellIndex cellIndex, int neighborhoodCount, int maxGenerations)
         {
-            return cellIndex.IsLifeCell && !CheckNeighborsCountForSurvivals(cellIndex, neighborhoodCount);
+            return cellIndex.IsLifeCell && (!CheckNeighborsCountForSurvivals(cellIndex, neighborhoodCount) || cellIndex.Generation > maxGenerations);
         }
 
         protected abstract bool CheckNeighborsCountForSurvivals(ICellIndex cellIndex, int neighborhoodCount);

@@ -7,6 +7,8 @@
         int Row { get; }
 
         bool IsLifeCell { get; }
+
+        bool IsEmptyCell { get; }
  
         bool IsDyingCell { get; }
         
@@ -19,5 +21,9 @@
         void SetEmptyCell();
         
         void SetLifeCell();
+
+        void IncGeneration();
+
+        int Generation { get; }
     }
 }

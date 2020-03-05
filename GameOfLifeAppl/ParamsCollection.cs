@@ -20,7 +20,9 @@ namespace GameOfLifeAppl
 
         public int StepCount => _params.TryGetValue("Steps", out string value) ? int.Parse(value) : 1;
 
-        public int Generations => _params.TryGetValue("Generations", out string value) ? int.Parse(value) : 1;
+        public int Generations => _params.TryGetValue("Generations", out string value) ? int.Parse(value) : int.MaxValue;
+
+        public bool UseGenerations => Generations != int.MaxValue;
 
         public int[] LifeSurvivals => GetList("Survivals", new[] {2, 3});
         
@@ -35,7 +37,7 @@ namespace GameOfLifeAppl
 
             if (string.IsNullOrWhiteSpace(data))
             {
-                return new[] {0};
+                return Enumerable.Range(0, 10).ToArray(); // all possibilities
             }
 
             return data.Split(',').Select(int.Parse).ToArray();
