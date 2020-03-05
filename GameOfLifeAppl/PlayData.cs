@@ -67,7 +67,7 @@ namespace GameOfLifeAppl
                     row += 1;
                 }
 
-                return new PlayArea(area);
+                return new PlayArea(area, Params);
             }
 
             #endregion

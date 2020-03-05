@@ -68,17 +68,18 @@ namespace GameOfLifeAppl
         #endregion
 
         private readonly int[,] _area;
+        private readonly ParamsCollection _paramsCollection;
 
-        public PlayArea(char[,] area)
+        public PlayArea(char[,] area, ParamsCollection paramsCollection)
         {
+            _paramsCollection = paramsCollection;
             _area = new int[area.GetLength(0), area.GetLength(1)];
 
             for (int col = 0; col < area.GetLength(0); col++)
             {
                 for (int row = 0; row < area.GetLength(1); row++)
                 {
-                    ICellIndex cellIndex;
-                    TryMakeCellIndex(col, row, out cellIndex);
+                    TryMakeCellIndex(col, row, out ICellIndex cellIndex);
 
                     switch (area[col, row])
                     {
@@ -149,7 +150,7 @@ namespace GameOfLifeAppl
                     cellIndex.SetLifeCell();
                 }
 
-                else if (cellIndex.IsLifeCell)
+                else if (cellIndex.IsLifeCell && _paramsCollection.UseGenerations && _paramsCollection.Generations > 1)
                 {
                     cellIndex.IncGeneration();
                 }
