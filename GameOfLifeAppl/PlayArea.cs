@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace GameOfLifeAppl
 {
@@ -9,10 +10,9 @@ namespace GameOfLifeAppl
 
         private class CellIndex : ICellIndex
         {
-            private const char LifeCellChar = 'X';
-            private const char DyingCellChar = 'x';
-            private const char NewCellChar = 'n';
-            private const char EmptyCellChar = '.';
+            private const int DyingCellChar = -2;
+            private const int NewCellChar = -1;
+            private const int EmptyCellChar = 0;
 
             private readonly PlayArea _playArea;
 
@@ -27,49 +27,73 @@ namespace GameOfLifeAppl
 
             public int Row { get; }
 
-            public bool IsLifeCell => Char == LifeCellChar || Char == DyingCellChar;
+            public bool IsLifeCell => (Cell != DyingCellChar && Cell != NewCellChar && Cell != EmptyCellChar) || Cell == DyingCellChar;
 
-            public bool IsDyingCell => Char == DyingCellChar;
+            public bool IsDyingCell => Cell == DyingCellChar;
 
-            public bool IsNewCell => Char == NewCellChar;
+            public bool IsNewCell => Cell == NewCellChar;
 
             public void SetDyingCell()
             {
-                Char = DyingCellChar;
+                Cell = DyingCellChar;
             }
 
             public void SetNewCell()
             {
-                Char = NewCellChar;
+                Cell = NewCellChar;
             }
 
             public void SetEmptyCell()
             {
-                Char = EmptyCellChar;
+                Cell = EmptyCellChar;
             }
 
             public void SetLifeCell()
             {
-                Char = LifeCellChar;
+                Cell = 1;
             }
 
-            private ref char Char => ref _playArea[Col, Row];
+            private ref int Cell => ref _playArea[Col, Row];
         }
 
         #endregion
 
-        private readonly char[,] _area;
+        private readonly int[,] _area;
 
         public PlayArea(char[,] area)
         {
-            _area = area;
+            _area = new int[area.GetLength(0), area.GetLength(1)];
+
+            for (int col = 0; col < area.GetLength(0); col++)
+            {
+                for (int row = 0; row < area.GetLength(1); row++)
+                {
+                    ICellIndex cellIndex;
+                    TryMakeCellIndex(col, row, out cellIndex);
+
+                    switch (area[col, row])
+                    {
+                        case '.':
+                        case '\0':
+                            cellIndex.SetEmptyCell();
+                            break;
+
+                        case 'X':
+                            cellIndex.SetLifeCell();
+                            break;
+
+                        default:
+                            throw new Exception($"Invalid cell input {area[col, row]}");
+                    }
+                }
+            }
         }
 
         public int Cols => _area.GetLength(0);
 
         public int Rows => _area.GetLength(1);
 
-        public ref char this[int col, int row] => ref _area[col, row];
+        public ref int this[int col, int row] => ref _area[col, row];
 
         public bool TryMakeCellIndex(int col, int row, out ICellIndex cellIndex)
         {
@@ -113,6 +137,26 @@ namespace GameOfLifeAppl
                 else if (cellIndex.IsNewCell)
                 {
                     cellIndex.SetLifeCell();
+                }
+            }
+        }
+
+        public void WriteArea(string outFile)
+        {
+            using (TextWriter tw = new StreamWriter(outFile))
+            {
+                tw.WriteLine($"{Cols} {Rows}");
+                
+                for (int row = 0; row < Rows; row++)
+                {
+                    for (int col = 0; col < Cols; col++)
+                    {
+                        TryMakeCellIndex(col, row, out ICellIndex cellIndex);
+
+                        tw.Write(cellIndex.IsLifeCell ? 'X' : '.');
+                    }
+
+                    tw.WriteLine();
                 }
             }
         }

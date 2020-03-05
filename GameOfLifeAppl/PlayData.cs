@@ -89,24 +89,6 @@ namespace GameOfLifeAppl
 
         public string Command { get; }
 
-        public void WriteArea(string outFile)
-        {
-            using (TextWriter tw = new StreamWriter(outFile))
-            {
-                tw.WriteLine($"{Area.Cols} {Area.Rows}");
-                
-                for (int row = 0; row < Area.Rows; row++)
-                {
-                    for (int col = 0; col < Area.Cols; col++)
-                    {
-                        tw.Write(Area[col, row]);
-                    }
-
-                    tw.WriteLine();
-                }
-            }
-        }
-
         public void MakeNextGenerations()
         {
             IRuleStrategy ruleStrategy = StrategiesFactory.GetRuleStrategy(this);

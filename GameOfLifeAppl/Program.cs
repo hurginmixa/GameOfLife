@@ -64,7 +64,7 @@ namespace GameOfLifeAppl
                 {
                     playData.MakeNextGenerations();
 
-                    playData.WriteArea(outFile);
+                    playData.Area.WriteArea(outFile);
                     break;
                 }
                 default:

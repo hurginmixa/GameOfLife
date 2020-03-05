@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using GameOfLifeAppl;
@@ -9,49 +10,8 @@ namespace GameOfLifeTests
     [TestFixture]
     public class Class1
     {
-        [Test]
-        public void Test()
-        {
-            var testDataPath = TestDataPath();
-
-            Console.WriteLine(testDataPath);
-
-            var files = Directory.GetFiles(testDataPath, "test_*_input.txt");
-
-            Assert.Multiple(() =>
-            {
-                foreach (var file in files)
-                {
-                    var testNum = int.Parse(file.Split('_')[1]);
-
-                    RunTest(testNum);
-                }
-            });
-        }
-
-        private void RunTest(int testNum)
-        {
-            Console.Write($"Test {testNum}");
-
-            try
-            {
-                TestCase(testNum);
-                Console.WriteLine(" - Ok");
-            }
-            catch
-            {
-                Console.WriteLine(" - Fail");
-                throw;
-            }
-        }
-
-        private static string TestDataPath()
-        {
-            Uri uri = new Uri(Assembly.GetExecutingAssembly().CodeBase, UriKind.Absolute);
-            return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(uri.LocalPath), "..", "TestData"));
-        }
-
-        private static void TestCase(int testNum)
+        [TestCaseSource(typeof(Class1), nameof(TestCases))]
+        public void RunTest(int testNum)
         {
             string testDataPath = TestDataPath();
 
@@ -63,7 +23,29 @@ namespace GameOfLifeTests
 
             Program.TestCode(inpFileName, actFileName);
 
-            FileAssert.AreEqual(expFileName, actFileName, $"Test Num : {testNum}");
+            FileAssert.AreEqual(expFileName, actFileName);
+        }
+
+        static IEnumerable<TestCaseData> TestCases()
+        {
+            var testDataPath = TestDataPath();
+
+            Console.WriteLine(testDataPath);
+
+            var files = Directory.GetFiles(testDataPath, "test_*_input.txt");
+
+            foreach (var file in files)
+            {
+                var testNum = int.Parse(file.Split('_')[1]);
+
+                yield return new TestCaseData(testNum);
+            }
+        }
+
+        private static string TestDataPath()
+        {
+            Uri uri = new Uri(Assembly.GetExecutingAssembly().CodeBase, UriKind.Absolute);
+            return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(uri.LocalPath), "..", "TestData"));
         }
     }
 }
