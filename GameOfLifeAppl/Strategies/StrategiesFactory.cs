@@ -7,7 +7,7 @@ namespace GameOfLifeAppl.Strategies
     {
         public static INeighborhoodStrategy GetNeighborhoodStrategy(PlayData playData)
         {
-            string strategyName = playData.NeighborhoodStrategyName();
+            string strategyName = playData.Params.NeighborhoodStrategyName;
             switch (strategyName)
             {
                 case "Moore":
@@ -23,24 +23,14 @@ namespace GameOfLifeAppl.Strategies
 
         public static IRuleStrategy GetRuleStrategy(PlayData playData)
         {
-            string strategyName = playData.GetRulesStrategyName();
+            string strategyName = playData.Params.RulesStrategyName;
             switch (strategyName)
             {
                 case "Life":
                 {
-                    var survivalsNeighborsCounts = new[] {2, 3};
+                    var survivalsNeighborsCounts = playData.Params.LifeSurvivals;
                     
-                    var newNeighborsCounts = new[] {3};
-
-                    if (playData.Params.TryGetValue("Survivals", out string data))
-                    {
-                        survivalsNeighborsCounts = data.Split(',').Select(Int32.Parse).ToArray();
-                    }
-
-                    if (playData.Params.TryGetValue("NewBirth", out data))
-                    {
-                        newNeighborsCounts = data.Split(',').Select(Int32.Parse).ToArray();
-                    }
+                    var newNeighborsCounts = playData.Params.LifeNewBirth;
 
                     return new ParametersRuleStrategy(survivalsNeighborsCounts: survivalsNeighborsCounts, newNeighborsCounts: newNeighborsCounts);
                 }

@@ -6,8 +6,18 @@
 
         int Row { get; }
 
-        ref char Char { get; }
-
         bool IsLifeCell { get; }
+ 
+        bool IsDyingCell { get; }
+        
+        bool IsNewCell { get; }
+
+        void SetDyingCell();
+
+        void SetNewCell();
+
+        void SetEmptyCell();
+        
+        void SetLifeCell();
     }
 }

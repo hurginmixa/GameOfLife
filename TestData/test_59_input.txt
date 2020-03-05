@@ -1,0 +1,8 @@
+NextGeneration
+Generations:1
+
+4 4
+.0..
+..0.
+000.
+....

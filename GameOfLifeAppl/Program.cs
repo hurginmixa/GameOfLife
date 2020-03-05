@@ -26,12 +26,12 @@ namespace GameOfLifeAppl
             {
                 case "CalcFieldSize":
                 {
-                    File.WriteAllText(outFile, (playData.Cols * playData.Rows).ToString());
+                    File.WriteAllText(outFile, (playData.Area.Cols * playData.Area.Rows).ToString());
                     break;
                 }
                 case "CalcLiveCells":
                 {
-                    int count = playData.GetCellIndexes(c => c.IsLifeCell).Count();
+                    int count = playData.Area.GetCellIndexes(c => c.IsLifeCell).Count();
                     File.WriteAllText(outFile, count.ToString());
                     break;
                 }
@@ -45,7 +45,7 @@ namespace GameOfLifeAppl
                     IRuleStrategy ruleStrategy = StrategiesFactory.GetRuleStrategy(playData);
                     INeighborhoodStrategy neighborhoodStrategy = StrategiesFactory.GetNeighborhoodStrategy(playData);
                     
-                    int count = playData.GetCellIndexes().Count(c => c.IsLifeCell && !ruleStrategy.IsDyingCellPolicy(c, neighborhoodStrategy.GetLifeNeighborhoodCount(c)));
+                    int count = playData.Area.GetCellIndexes().Count(c => c.IsLifeCell && !ruleStrategy.IsDyingCellPolicy(c, neighborhoodStrategy.GetLifeNeighborhoodCount(c)));
                     
                     File.WriteAllText(outFile, count.ToString());
                     break;
@@ -55,7 +55,7 @@ namespace GameOfLifeAppl
                     IRuleStrategy ruleStrategy = StrategiesFactory.GetRuleStrategy(playData);
                     INeighborhoodStrategy neighborhoodStrategy = StrategiesFactory.GetNeighborhoodStrategy(playData);
 
-                    int count = playData.GetCellIndexes().Count(c => ruleStrategy.IsNewCellPolicy(c, neighborhoodStrategy.GetLifeNeighborhoodCount(c)));
+                    int count = playData.Area.GetCellIndexes().Count(c => ruleStrategy.IsNewCellPolicy(c, neighborhoodStrategy.GetLifeNeighborhoodCount(c)));
                     
                     File.WriteAllText(outFile, count.ToString());
                     break;

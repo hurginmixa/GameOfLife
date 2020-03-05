@@ -23,7 +23,7 @@ namespace GameOfLifeAppl.Strategies
                     int tmpCol = cellIndex.Col + deltaCol;
                     int tmpRow = cellIndex.Row + deltaRow;
 
-                    if (PlayData.TryMakeCellIndex(tmpCol, tmpRow, out ICellIndex tmpCellIndex))
+                    if (PlayData.Area.TryMakeCellIndex(tmpCol, tmpRow, out ICellIndex tmpCellIndex))
                     {
                         yield return tmpCellIndex;
                     }

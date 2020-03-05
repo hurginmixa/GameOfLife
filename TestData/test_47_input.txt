@@ -1,0 +1,11 @@
+NextGeneration
+Steps:1
+Survivals:
+NewBirth:2
+Generations:2
+
+4 4
+....
+.00.
+.00.
+....

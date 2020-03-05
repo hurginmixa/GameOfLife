@@ -10,22 +10,22 @@ namespace GameOfLifeAppl.Strategies
 
         protected override IEnumerable<ICellIndex> NeighborCellIndexEnum(ICellIndex cellIndex)
         {
-            if (PlayData.TryMakeCellIndex(cellIndex.Col + 1, cellIndex.Row, out ICellIndex tmpCellIndex))
+            if (PlayData.Area.TryMakeCellIndex(cellIndex.Col + 1, cellIndex.Row, out ICellIndex tmpCellIndex))
             {
                 yield return tmpCellIndex;
             }
 
-            if (PlayData.TryMakeCellIndex(cellIndex.Col - 1, cellIndex.Row, out tmpCellIndex))
+            if (PlayData.Area.TryMakeCellIndex(cellIndex.Col - 1, cellIndex.Row, out tmpCellIndex))
             {
                 yield return tmpCellIndex;
             }
 
-            if (PlayData.TryMakeCellIndex(cellIndex.Col, cellIndex.Row + 1, out tmpCellIndex))
+            if (PlayData.Area.TryMakeCellIndex(cellIndex.Col, cellIndex.Row + 1, out tmpCellIndex))
             {
                 yield return tmpCellIndex;
             }
 
-            if (PlayData.TryMakeCellIndex(cellIndex.Col, cellIndex.Row - 1, out tmpCellIndex))
+            if (PlayData.Area.TryMakeCellIndex(cellIndex.Col, cellIndex.Row - 1, out tmpCellIndex))
             {
                 yield return tmpCellIndex;
             }

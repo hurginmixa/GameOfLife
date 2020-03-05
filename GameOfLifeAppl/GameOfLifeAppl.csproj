@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ParamsCollection.cs" />
+    <Compile Include="PlayArea.cs" />
     <Compile Include="Strategies\ANeighborhoodStrategy.cs" />
     <Compile Include="Strategies\INeighborhoodStrategy.cs" />
     <Compile Include="Strategies\MooreNeighborhoodStrategy.cs" />
